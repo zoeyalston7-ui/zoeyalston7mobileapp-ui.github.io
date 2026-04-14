@@ -5,35 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Workout Tracker</title>
 
-<!-- Neutral Aesthetic Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --bg: #F5F5F4;          /* warm stone */
-  --card: #FFFFFF;        /* clean white */
-  --soft: #EFEDEB;        /* soft divider */
-  --text: #1C1C1C;        /* primary text */
-  --muted: #7A7A7A;       /* secondary text */
-  --accent: #A8A29E;      /* subtle taupe */
-  --dark-accent: #57534E; /* deep neutral */
+  --primary: #FF7BAC;
+  --primary-soft: #FFE3ED;
+  --accent: #6D1F42;
+  --bg: #F8F4F7;
+  --card: #ffffff;
+  --text: #1f1f1f;
+  --muted: #777;
 }
-
-* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   background: var(--bg);
   color: var(--text);
 }
 
 header {
-  padding: 1.6rem 1rem 1.2rem;
+  padding: 1.4rem 1rem;
   text-align: center;
   font-family: 'Playfair Display', serif;
   font-size: 1.9rem;
-  letter-spacing: 0.5px;
+  background: var(--primary);
+  color: white;
 }
 
 .container {
@@ -47,22 +45,17 @@ header {
   border-radius: 18px;
   padding: 1.2rem;
   margin-bottom: 1rem;
-  border: 1px solid var(--soft);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
 }
 
-h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.2rem;
-  margin-bottom: 0.6rem;
-}
+h2 { font-family: 'Playfair Display', serif; }
 
 input, select {
   width: 100%;
   padding: 0.65rem;
   margin-top: 0.4rem;
   border-radius: 10px;
-  border: 1px solid var(--soft);
-  background: #FAFAF9;
+  border: 1px solid #e5e5e5;
 }
 
 button {
@@ -70,23 +63,13 @@ button {
   padding: 0.75rem;
   border-radius: 12px;
   border: none;
-  background: var(--dark-accent);
+  background: var(--primary);
   color: white;
   margin-top: 0.7rem;
   cursor: pointer;
-  font-weight: 500;
 }
 
-button:active {
-  opacity: 0.85;
-}
-
-.day-title {
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-  font-size: 0.95rem;
-  color: var(--muted);
-}
+.day-title { font-weight: 600; margin-bottom: 0.4rem; }
 
 .workout {
   position: relative;
@@ -96,17 +79,16 @@ button:active {
 }
 
 .workout-inner {
-  background: #FAFAF9;
-  padding: 0.85rem;
+  background: var(--primary-soft);
+  padding: 0.9rem;
   display: flex;
   gap: 10px;
   align-items: center;
-  border: 1px solid var(--soft);
   transition: transform 0.2s ease;
 }
 
 .completed {
-  opacity: 0.4;
+  opacity: 0.5;
   text-decoration: line-through;
 }
 
@@ -117,22 +99,14 @@ button:active {
 
 .content { flex: 1; }
 
-.exercise-name {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.exercise-meta {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
+.exercise-name { font-weight: 600; }
+.exercise-meta { font-size: 0.85rem; color: var(--muted); }
 
 .stats {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   margin-top: 4px;
   display: flex;
   justify-content: space-between;
-  color: var(--muted);
 }
 
 .delete-bg {
@@ -141,26 +115,17 @@ button:active {
   top: 0;
   width: 80px;
   height: 100%;
-  background: var(--dark-accent);
+  background: var(--accent);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
 }
 
 .timer {
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   margin-top: 0.5rem;
-  font-weight: 500;
-}
-
-.empty {
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.85rem;
-  margin-top: 1rem;
 }
 
 </style>
@@ -186,7 +151,7 @@ button:active {
 
 <div class="card">
   <h2>Rest Timer</h2>
-  <input id="seconds" type="number" placeholder="Seconds" />
+  <input id="seconds" type="number" placeholder="Seconds (e.g. 60)" />
   <button onclick="startTimer()">Start Timer</button>
   <div class="timer" id="timerDisplay">0</div>
 </div>
@@ -199,11 +164,11 @@ button:active {
 const workouts = JSON.parse(localStorage.getItem('workouts')) || {};
 
 function addWorkout() {
-  const day = day.value;
-  const ex = exercise.value;
-  const s = sets.value;
-  const r = reps.value;
-  const w = weight.value;
+  const day = document.getElementById('day').value;
+  const ex = document.getElementById('exercise').value;
+  const s = document.getElementById('sets').value;
+  const r = document.getElementById('reps').value;
+  const w = document.getElementById('weight').value;
 
   if (!ex || !s || !r || !w) return alert('Fill all fields');
 
@@ -211,7 +176,11 @@ function addWorkout() {
   workouts[day].push({ exercise: ex, sets: s, reps: r, weight: w, done: false, date: new Date().toLocaleDateString() });
 
   save(); render();
-  exercise.value = sets.value = reps.value = weight.value = '';
+
+  document.getElementById('exercise').value = '';
+  document.getElementById('sets').value = '';
+  document.getElementById('reps').value = '';
+  document.getElementById('weight').value = '';
 }
 
 function toggleDone(day, i) {
@@ -228,30 +197,9 @@ function deleteWorkout(day, i) {
   save(); render();
 }
 
-function getPR(ex) {
-  let max=0;
-  Object.values(workouts).forEach(d=>d.forEach(w=>{
-    if(w.exercise===ex) max=Math.max(max,+w.weight);
-  }));
-  return max;
-}
-
-function getLast(ex) {
-  let last=null;
-  Object.values(workouts).forEach(d=>d.forEach(w=>{
-    if(w.exercise===ex) last=w;
-  }));
-  return last;
-}
-
 function render() {
   const container = document.getElementById('workoutList');
   container.innerHTML='';
-
-  if(Object.keys(workouts).length===0){
-    container.innerHTML = '<div class="empty">No workouts yet</div>';
-    return;
-  }
 
   Object.keys(workouts).forEach(day=>{
     const section=document.createElement('div');
@@ -270,18 +218,11 @@ function render() {
       const inner=document.createElement('div');
       inner.className='workout-inner';
 
-      const pr=getPR(w.exercise);
-      const last=getLast(w.exercise);
-
       inner.innerHTML=`
         <input type="checkbox" class="checkbox" ${w.done?'checked':''} onclick="toggleDone('${day}',${i})">
         <div class="content ${w.done?'completed':''}">
           <div class="exercise-name">${w.exercise}</div>
           <div class="exercise-meta">${w.sets} x ${w.reps} @ ${w.weight}</div>
-          <div class="stats">
-            <span>PR ${pr}</span>
-            <span>Last ${last.weight}</span>
-          </div>
         </div>
       `;
 
@@ -324,4 +265,5 @@ render();
 
 </body>
 </html>
+
 

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Workout Tracker</title>
+
+<!-- Neutral Aesthetic Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #F5F5F4;          /* warm stone */
+  --card: #FFFFFF;        /* clean white */
+  --soft: #EFEDEB;        /* soft divider */
+  --text: #1C1C1C;        /* primary text */
+  --muted: #7A7A7A;       /* secondary text */
+  --accent: #A8A29E;      /* subtle taupe */
+  --dark-accent: #57534E; /* deep neutral */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  padding: 1.6rem 1rem 1.2rem;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.9rem;
+  letter-spacing: 0.5px;
+}
+
+.container {
+  max-width: 620px;
+  margin: auto;
+  padding: 1rem;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--soft);
+}
+
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  margin-bottom: 0.6rem;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.65rem;
+  margin-top: 0.4rem;
+  border-radius: 10px;
+  border: 1px solid var(--soft);
+  background: #FAFAF9;
+}
+
+button {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: none;
+  background: var(--dark-accent);
+  color: white;
+  margin-top: 0.7rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+button:active {
+  opacity: 0.85;
+}
+
+.day-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.workout {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  margin-top: 0.6rem;
+}
+
+.workout-inner {
+  background: #FAFAF9;
+  padding: 0.85rem;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--soft);
+  transition: transform 0.2s ease;
+}
+
+.completed {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+.content { flex: 1; }
+
+.exercise-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.exercise-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.stats {
+  font-size: 0.7rem;
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+}
+
+.delete-bg {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 80px;
+  height: 100%;
+  background: var(--dark-accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.timer {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 1rem;
+}
+
+</style>
+</head>
+<body>
+
+<header>Workout Log</header>
+
+<div class="container">
+
+<div class="card">
+  <h2>Add Workout</h2>
+  <select id="day">
+    <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+    <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+  </select>
+  <input id="exercise" placeholder="Exercise" />
+  <input id="sets" type="number" placeholder="Sets" />
+  <input id="reps" type="number" placeholder="Reps" />
+  <input id="weight" type="number" placeholder="Weight" />
+  <button onclick="addWorkout()">Add Workout</button>
+</div>
+
+<div class="card">
+  <h2>Rest Timer</h2>
+  <input id="seconds" type="number" placeholder="Seconds" />
+  <button onclick="startTimer()">Start Timer</button>
+  <div class="timer" id="timerDisplay">0</div>
+</div>
+
+<div id="workoutList"></div>
+
+</div>
+
+<script>
+const workouts = JSON.parse(localStorage.getItem('workouts')) || {};
+
+function addWorkout() {
+  const day = day.value;
+  const ex = exercise.value;
+  const s = sets.value;
+  const r = reps.value;
+  const w = weight.value;
+
+  if (!ex || !s || !r || !w) return alert('Fill all fields');
+
+  if (!workouts[day]) workouts[day] = [];
+  workouts[day].push({ exercise: ex, sets: s, reps: r, weight: w, done: false, date: new Date().toLocaleDateString() });
+
+  save(); render();
+  exercise.value = sets.value = reps.value = weight.value = '';
+}
+
+function toggleDone(day, i) {
+  workouts[day][i].done = !workouts[day][i].done;
+  save(); render();
+}
+
+function save() {
+  localStorage.setItem('workouts', JSON.stringify(workouts));
+}
+
+function deleteWorkout(day, i) {
+  workouts[day].splice(i,1);
+  save(); render();
+}
+
+function getPR(ex) {
+  let max=0;
+  Object.values(workouts).forEach(d=>d.forEach(w=>{
+    if(w.exercise===ex) max=Math.max(max,+w.weight);
+  }));
+  return max;
+}
+
+function getLast(ex) {
+  let last=null;
+  Object.values(workouts).forEach(d=>d.forEach(w=>{
+    if(w.exercise===ex) last=w;
+  }));
+  return last;
+}
+
+function render() {
+  const container = document.getElementById('workoutList');
+  container.innerHTML='';
+
+  if(Object.keys(workouts).length===0){
+    container.innerHTML = '<div class="empty">No workouts yet</div>';
+    return;
+  }
+
+  Object.keys(workouts).forEach(day=>{
+    const section=document.createElement('div');
+    section.className='card';
+
+    section.innerHTML=`<div class="day-title">${day}</div>`;
+
+    workouts[day].forEach((w,i)=>{
+      const wrap=document.createElement('div');
+      wrap.className='workout';
+
+      const bg=document.createElement('div');
+      bg.className='delete-bg';
+      bg.textContent='Delete';
+
+      const inner=document.createElement('div');
+      inner.className='workout-inner';
+
+      const pr=getPR(w.exercise);
+      const last=getLast(w.exercise);
+
+      inner.innerHTML=`
+        <input type="checkbox" class="checkbox" ${w.done?'checked':''} onclick="toggleDone('${day}',${i})">
+        <div class="content ${w.done?'completed':''}">
+          <div class="exercise-name">${w.exercise}</div>
+          <div class="exercise-meta">${w.sets} x ${w.reps} @ ${w.weight}</div>
+          <div class="stats">
+            <span>PR ${pr}</span>
+            <span>Last ${last.weight}</span>
+          </div>
+        </div>
+      `;
+
+      let startX=0,currentX=0;
+      inner.addEventListener('touchstart',e=>startX=e.touches[0].clientX);
+      inner.addEventListener('touchmove',e=>{
+        currentX=e.touches[0].clientX-startX;
+        if(currentX<0) inner.style.transform=`translateX(${currentX}px)`;
+      });
+      inner.addEventListener('touchend',()=>{
+        if(currentX<-80) deleteWorkout(day,i);
+        else inner.style.transform='translateX(0)';
+      });
+
+      wrap.append(bg,inner);
+      section.appendChild(wrap);
+    });
+
+    container.appendChild(section);
+  });
+}
+
+let timerInterval;
+function startTimer() {
+  let time = +document.getElementById('seconds').value;
+  clearInterval(timerInterval);
+
+  timerInterval = setInterval(()=>{
+    if(time<=0) {
+      clearInterval(timerInterval);
+      alert('Rest time over');
+    }
+    document.getElementById('timerDisplay').textContent = time;
+    time--;
+  },1000);
+}
+
+render();
+</script>
+
+</body>
+</html>
+
